@@ -1,0 +1,164 @@
+import os
+import sys
+import datetime
+
+# Utility Functions
+def clear_screen():
+    """Clear the console screen."""
+    os.system("cls" if os.name == "nt" else "clear")
+
+def pause():
+    """Pause the console until the user presses a key."""
+    input("\nPress Enter to continue...")
+
+# Classes
+class Transaction:
+    """Represents a single bank transaction."""
+    def __init__(self, transaction_type, amount, balance):
+        self.date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.type = transaction_type
+        self.amount = amount
+        self.balance = balance
+
+    def __str__(self):
+        return f"{self.date} | {self.type} | Amount: {self.amount} | Balance: {self.balance}"
+
+
+class Account:
+    """Represents a bank account."""
+    def __init__(self, account_number, name, initial_balance):
+        self.account_number = account_number
+        self.name = name
+        self.balance = initial_balance
+        self.transactions = [
+            Transaction("Account Created", initial_balance, initial_balance)
+        ]
+
+    def deposit(self, amount):
+        """Deposit money into the account."""
+        self.balance += amount
+        self.transactions.append(Transaction("Deposit", amount, self.balance))
+        print(f"\nDeposited {amount} successfully. Current Balance: {self.balance}")
+
+    def withdraw(self, amount):
+        """Withdraw money from the account."""
+        if amount > self.balance:
+            print("\nInsufficient balance.")
+        else:
+            self.balance -= amount
+            self.transactions.append(Transaction("Withdrawal", amount, self.balance))
+            print(f"\nWithdrew {amount} successfully. Current Balance: {self.balance}")
+
+    def display_info(self):
+        """Display account information."""
+        print("\n=== Account Information ===")
+        print(f"Account Number: {self.account_number}")
+        print(f"Name: {self.name}")
+        print(f"Balance: {self.balance}")
+        print("\n=== Transaction History ===")
+        for transaction in self.transactions:
+            print(transaction)
+
+
+class Bank:
+    """Represents the bank system."""
+    def __init__(self):
+        self.accounts = {}
+
+    def create_account(self):
+        """Create a new account."""
+        account_number = input("\nEnter Account Number: ")
+        if account_number in self.accounts:
+            print("Account number already exists. Try again.")
+            return
+        name = input("Enter Account Holder Name: ")
+        initial_balance = float(input("Enter Initial Deposit Amount: "))
+        self.accounts[account_number] = Account(account_number, name, initial_balance)
+        print("\nAccount created successfully.")
+
+    def access_account(self):
+        """Access an existing account."""
+        account_number = input("\nEnter Account Number: ")
+        account = self.accounts.get(account_number)
+        if not account:
+            print("Account not found.")
+            return
+        while True:
+            clear_screen()
+            print("\n=== Account Menu ===")
+            print("1. Deposit")
+            print("2. Withdraw")
+            print("3. Display Account Info")
+            print("4. Back")
+            choice = input("Enter your choice: ")
+            if choice == "1":
+                amount = float(input("\nEnter amount to deposit: "))
+                account.deposit(amount)
+                pause()
+            elif choice == "2":
+                amount = float(input("\nEnter amount to withdraw: "))
+                account.withdraw(amount)
+                pause()
+            elif choice == "3":
+                account.display_info()
+                pause()
+            elif choice == "4":
+                break
+            else:
+                print("Invalid choice. Try again.")
+                pause()
+
+    def delete_account(self):
+        """Delete an account."""
+        account_number = input("\nEnter Account Number to delete: ")
+        if account_number in self.accounts:
+            del self.accounts[account_number]
+            print("Account deleted successfully.")
+        else:
+            print("Account not found.")
+
+    def display_all_accounts(self):
+        """Display all accounts in the bank."""
+        if not self.accounts:
+            print("No accounts to display.")
+            return
+        print("\n=== All Accounts ===")
+        for account in self.accounts.values():
+            print(f"Account Number: {account.account_number}, Name: {account.name}, Balance: {account.balance}")
+
+
+# Main Function
+def main():
+    bank = Bank()
+    while True:
+        clear_screen()
+        print("\n=== Bank Management System ===")
+        print("1. Create Account")
+        print("2. Access Account")
+        print("3. Delete Account")
+        print("4. Display All Accounts")
+        print("5. Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            bank.create_account()
+            pause()
+        elif choice == "2":
+            bank.access_account()
+        elif choice == "3":
+            bank.delete_account()
+            pause()
+        elif choice == "4":
+            bank.display_all_accounts()
+            pause()
+        elif choice == "5":
+            print("\nThank you for using the Bank Management System. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Try again.")
+            pause()
+
+
+# Entry Point
+if __name__ == "__main__":
+    main()
